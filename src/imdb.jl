@@ -61,4 +61,59 @@ function loadimdb(directory)
     return Imdb(films, actors, credits)
 end
 
-imdbData = loadimdb("data/imdb/")
+"""
+    writeCreditEdgelist(imdbdata, filename)
+
+Store the IMDB credit hyperaph in the edgelist format.
+
+Create three files:
+  - filename.edgelist
+  - filename.edges
+  - filename.vertices
+
+In the filename.edgelist file, there will be a single line for each edge in the hypergraph,
+containing a space seperated list of nodes.
+
+The filename.edges file will contain the name of the film corresponding to each edge.
+
+The filename.vertices file will contain the name of the person corresponding to each vertex.
+"""
+function writeCreditEdgelist(imdbData, filename)
+    # Start by opening the ouput files
+    edgelistFile = open("$filename.edgelist", "w")
+    edgesFile = open("$filename.edges", "w")
+    verticesFile = open("$filename.vertices", "w")
+
+    # We will construct a dictionary of person IDs -> node IDs as we go along.
+    person_node = Dict()
+
+    vᵢ = 1
+    for (movie_id, credit_list) in imdbData.credits
+        # Add this edge to the edges file
+        println(edgesFile, imdbData.films[movie_id])
+
+        for person_id in credit_list
+            # Add this person to the person_node dictionary if they are not there already, and
+            # save to the vertices file.
+            if person_id ∉ keys(person_node)
+                person_node[person_id] = vᵢ
+                vᵢ += 1
+
+                if person_id ∈ keys(imdbData.actors)
+                    println(verticesFile, imdbData.actors[person_id])
+                else
+                    println(verticesFile, "missing")
+                end
+            end
+
+            print(edgelistFile, "$(person_node[person_id]) ")
+        end
+
+        # Add a newline at the end of each line
+        print(edgelistFile, "\n")
+    end
+
+    close(edgelistFile)
+    close(edgesFile)
+    close(verticesFile)
+end
