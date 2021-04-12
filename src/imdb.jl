@@ -79,7 +79,7 @@ The filename.edges file will contain the name of the film corresponding to each 
 The filename.vertices file will contain the name of the person corresponding to each vertex.
 """
 function writeCreditEdgelist(imdbData, filename)
-    # Start by opening the ouput files
+    # Start by opening the output files
     edgelistFile = open("$filename.edgelist", "w")
     edgesFile = open("$filename.edges", "w")
     verticesFile = open("$filename.vertices", "w")
