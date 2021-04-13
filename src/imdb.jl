@@ -63,6 +63,7 @@ end
 
 """
     writeCreditEdgelist(imdbdata, filename)
+    writeCreditEdgelist(imdbDirectory)
 
 Store the IMDB credit hyperaph in the edgelist format.
 
@@ -71,6 +72,9 @@ Create three files:
   - filename.edges
   - filename.vertices
 
+If only the imdb directory is specified, then the data is loaded, and then saved, with
+filename="credit".
+
 In the filename.edgelist file, there will be a single line for each edge in the hypergraph,
 containing a space seperated list of nodes.
 
@@ -78,7 +82,7 @@ The filename.edges file will contain the name of the film corresponding to each 
 
 The filename.vertices file will contain the name of the person corresponding to each vertex.
 """
-function writeCreditEdgelist(imdbData, filename)
+function writeCreditEdgelist(imdbData::Imdb, filename::String)
     # Start by opening the ouput files
     edgelistFile = open("$filename.edgelist", "w")
     edgesFile = open("$filename.edges", "w")
@@ -116,4 +120,9 @@ function writeCreditEdgelist(imdbData, filename)
     close(edgelistFile)
     close(edgesFile)
     close(verticesFile)
+end
+
+function writeCreditEdgelist(imdbDirectory::String)
+    imdbData = loadimdb(imdbDirectory)
+    writeCreditEdgelist(imdbData, joinpath(imdbDirectory, "credit"))
 end
