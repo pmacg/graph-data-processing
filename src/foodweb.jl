@@ -31,9 +31,26 @@ function writeFoodwebNetwork(foodwebDirectory::String)
 
     edgelist_df = DataFrame(CSV.File(input_filename, comment="#", header=false))
 
+    # We hardcode some vertices to ignore
+    n = 128
+    ignore_vertices = [12, 123, 124, 126]
+
+    # Figure out how to correct each node index once we've ignored those above
+    index_corrections = Dict()
+    current_correction = 0
+    for index = 1:n
+        index_corrections[index] = index - current_correction
+        if index in ignore_vertices
+            current_correction += 1
+        end
+    end
+
     open(output_filename, "w") do f_out
         for row in eachrow(edgelist_df)
-            write(f_out, repr(row[1] + 1), " ", repr(row[2] + 1), "\n")
+            if row[1] ∉ ignore_vertices && row[2] ∉ ignore_vertices
+                write(f_out, repr(index_corrections[row[1] + 1]), " ",
+                      repr(index_corrections[row[2] + 1]), "\n")
+            end
         end
     end
 
@@ -45,7 +62,9 @@ function writeFoodwebNetwork(foodwebDirectory::String)
     output_filename = joinpath(foodwebDirectory, "foodweb.vertices")
     open(output_filename, "w") do f_out
         for row in eachrow(meta_df)
-            write(f_out, row["name"], "\n")
+            if (row["node_id"] + 1) ∉ ignore_vertices
+                write(f_out, row["name"], "\n")
+            end
         end
     end
 
@@ -59,10 +78,12 @@ function writeFoodwebNetwork(foodwebDirectory::String)
     output_filename = joinpath(foodwebDirectory, "foodweb.gt")
     open(output_filename, "w") do f_out
         for row in eachrow(meta_df)
-            if row["group"] === missing
-                write(f_out, "0\n")
-            else
-                write(f_out, repr(cluster_dictionary[row["group"]]), "\n")
+            if (row["node_id"] + 1) ∉ ignore_vertices
+                if row["group"] === missing
+                    write(f_out, "0\n")
+                else
+                    write(f_out, repr(cluster_dictionary[row["group"]]), "\n")
+                end
             end
         end
     end
