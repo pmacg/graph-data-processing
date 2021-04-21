@@ -25,5 +25,6 @@ For each dataset, we produce some subset of the following output files.
 - `<network_name>.vertices`: each line contains a label which corresponds to a vertex in the graph.
   The vertices are listed in order of their numerical index. Note that this is **not** the cluster
   label of the vertex, but the individual name of the vertex.
-- `<network_name>.gt`: each line gives a cluster index (starting with `1`) for each vertex.
+- `<network_name>.gt`: each line gives a cluster index (starting with `1`) for each vertex. If a
+  vertex does not have a cluster label, then it is listed as `0`.
 - `<network_name>.clusters`: each line gives the name of the corresponding cluster.
