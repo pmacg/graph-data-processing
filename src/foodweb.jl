@@ -21,6 +21,8 @@ Write the foodweb data files to the given directory.
 
 The supplied directory must contain the extracted foodweb data files from
 https://snap.stanford.edu/data/Florida-bay.html.
+
+We drop vertices which are labeled detritus.
 """
 function writeFoodwebNetwork(foodwebDirectory::String)
     # Start by writing the edgeslist file. This is quite straightforward. We will remove the
@@ -29,11 +31,16 @@ function writeFoodwebNetwork(foodwebDirectory::String)
     input_filename = joinpath(foodwebDirectory, EDGELIST_FILENAME)
     output_filename = joinpath(foodwebDirectory, "foodweb.edgelist")
 
+    # Hardcode the detritus nodes. It turns out we can just ignore those above 124.
+    detritus_nodes_above = 123
+
     edgelist_df = DataFrame(CSV.File(input_filename, comment="#", header=false))
 
     open(output_filename, "w") do f_out
         for row in eachrow(edgelist_df)
-            write(f_out, repr(row[1] + 1), " ", repr(row[2] + 1), "\n")
+            if row[1] + 1 < detritus_nodes_above && row[2] + 1 < detritus_nodes_above
+                write(f_out, repr(row[1] + 1), " ", repr(row[2] + 1), "\n")
+            end
         end
     end
 
@@ -45,7 +52,9 @@ function writeFoodwebNetwork(foodwebDirectory::String)
     output_filename = joinpath(foodwebDirectory, "foodweb.vertices")
     open(output_filename, "w") do f_out
         for row in eachrow(meta_df)
-            write(f_out, row["name"], "\n")
+            if row["node_id"] + 1 < detritus_nodes_above
+                write(f_out, row["name"], "\n")
+            end
         end
     end
 
@@ -59,6 +68,9 @@ function writeFoodwebNetwork(foodwebDirectory::String)
     output_filename = joinpath(foodwebDirectory, "foodweb.gt")
     open(output_filename, "w") do f_out
         for row in eachrow(meta_df)
+            if row["node_id"] + 1 >= detritus_nodes_above
+                continue
+            end
             if row["group"] === missing
                 write(f_out, "0\n")
             else
