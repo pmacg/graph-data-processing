@@ -52,7 +52,7 @@ function writeFoodwebNetwork(foodwebDirectory::String)
 
     open(output_filename, "w") do f_out
         for row in eachrow(edgelist_df)
-            if row[1] ∉ ignore_vertices && row[2] ∉ ignore_vertices
+            if (row[1] + 1) ∉ ignore_vertices && (row[2] + 1) ∉ ignore_vertices
                 write(f_out, repr(index_corrections[row[1] + 1]), " ",
                       repr(index_corrections[row[2] + 1]), "\n")
             end
