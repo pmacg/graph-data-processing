@@ -21,6 +21,8 @@ Write the foodweb data files to the given directory.
 
 The supplied directory must contain the extracted foodweb data files from
 https://snap.stanford.edu/data/Florida-bay.html.
+
+We drop vertices which are labeled detritus.
 """
 function writeFoodwebNetwork(foodwebDirectory::String)
     # Start by writing the edgeslist file. This is quite straightforward. We will remove the
@@ -28,6 +30,9 @@ function writeFoodwebNetwork(foodwebDirectory::String)
     # downstream processing.
     input_filename = joinpath(foodwebDirectory, EDGELIST_FILENAME)
     output_filename = joinpath(foodwebDirectory, "foodweb.edgelist")
+
+    # Hardcode the detritus nodes. It turns out we can just ignore those above 124.
+    detritus_nodes_above = 123
 
     edgelist_df = DataFrame(CSV.File(input_filename, comment="#", header=false))
 
