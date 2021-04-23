@@ -44,17 +44,28 @@ function loadimdb(directory)
 
     # Now, construct the credits dictionary
     filename = joinpath(directory, CREDITS_FILENAME)
-    df = DataFrame(CSV.File(filename, select=[:tconst, :nconst]))
+    df = DataFrame(CSV.File(filename, select=[:tconst, :nconst, :category]))
 
     # Select only the rows which correspond to films in our film dictionary.
     df = df[in(keys(films)).(df.tconst), :]
 
-    # Grouping by movie, construct the creditc dictionary.
+    # Select only the rows which correspond to actors, actresses and directors.
+    df = df[in.(df.category, Ref(["actor", "actress", "director"])), :]
+
+    # Grouping by movie, construct the credits dictionary.
     groups = groupby(df, :tconst)
     credits = Dict()
     for group in groups
         this_tconst = group[1, :tconst]
-        this_principals = Array(group.nconst)
+        this_actors = group[group.category .== "actor", :].nconst
+        this_actresses = group[group.category .== "actress", :].nconst
+        this_directors = group[group.category .== "director", :].nconst
+        this_principals = []
+
+        # Keep at most the first two of each category
+        append!(this_principals, this_actresses[1 : min(2, length(this_actresses))])
+        append!(this_principals, this_actors[1 : min(2, length(this_actors))])
+        append!(this_principals, this_directors[1 : min(2, length(this_directors))])
         credits[this_tconst] = this_principals
     end
 
