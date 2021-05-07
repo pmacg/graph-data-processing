@@ -25,4 +25,4 @@ Manifest.toml
 
 # Ignore the data directory - you can include the datasets you're working on there
 data/
-
+.idea/
